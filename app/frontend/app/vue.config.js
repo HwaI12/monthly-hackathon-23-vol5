@@ -1,4 +1,5 @@
-const { defineConfig } = require('@vue/cli-service')
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 module.exports = defineConfig({
   transpileDependencies: true
 })
