@@ -6,7 +6,7 @@ ENV TZ Asia/Tokyo
 # pip installs
 COPY ./app/backend/requirements.txt ./requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install SQLAlchemy 
+RUN pip install SQLAlchemy
 
 WORKDIR ./app
 
