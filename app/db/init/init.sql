@@ -8,9 +8,10 @@ GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;
 \c postgres
 
 CREATE TABLE users (
-  id INT PRIMARY KEY,
+  id serial,
   user_name TEXT,
   password TEXT
+  primary key (id)
 );
 
 INSERT INTO users (user_name, password) VALUES ('hoge', 'hoge');
