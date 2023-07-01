@@ -22,16 +22,17 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
-
-SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}/{name}'.format(**{
+print(os.getenv("PATH"))
+SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}:{port}/{name}'.format(**{
     # 'user': os.environ.get("DB_USER"),
     # 'password':os.environ.get("DB_PASSWORD"),
     # 'host': os.environ.get("DB_HOST"),
     # 'name': os.environ.get("DB_NAME")
-    'user':"postgres",
-    'password':"password",
-    'host':"host.docker.internal",
-    'name':"vol5"
+    'user': 'postgres',
+    'password':'password',
+    'host': 'host.docker.internal',
+    'port': 5432,
+    'name': 'users'
 })
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
