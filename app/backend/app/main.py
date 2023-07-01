@@ -1,110 +1,110 @@
 import os
-from fastapi import FastAPI, Depends, Query, status
+from fastapi import FastAPI, Depends, status
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import Column, TIMESTAMP, Integer, String, create_engine,Text
+from sqlalchemy import Column, Integer, String, create_engine, Text
 from sqlalchemy.orm import sessionmaker
 from starlette.middleware.cors import CORSMiddleware
-from sqlalchemy import Column, TIMESTAMP, Integer, String,Text
 from sqlalchemy.ext.declarative import declarative_base
 import uvicorn
-from schema import *
+from schema import UserRequest
 
 
-ROOT_PATH="/api"
+ROOT_PATH = "/api"
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*']
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
-SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}/{name}'.format(**{
-    # 'user': os.environ.get("DB_USER"),
-    # 'password':os.environ.get("DB_PASSWORD"),
-    # 'host': os.environ.get("DB_HOST"),
-    # 'name': os.environ.get("DB_NAME")
-    'user':"postgres",
-    'password':"password",
-    'host':"host.docker.internal",
-    'name':"vol5"
-})
+SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}:{port}/{name}'.format(
+    **{
+        "user": "postgres",
+        "password": "password",
+        "host": "postgres",
+        "port": "5432",
+        "name": "postgres"
+    }
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base(bind=engine)
 
-def session():
-    db = Session()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, nullable=False)
+    name = Column(Text, nullable=False)
+    password = Column(Text, nullable=False)
+
+    def __init__(self, name: str, password: str):
+        self.name = name
+        self.password = password
+
+
+def get_db():
+    db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-Base = declarative_base(bind=engine)
-class User(Base):
-    __tablename__ = "users"
-    __table_args__ = {"autoload": True}
-    id = Column(Integer, primary_key = True, nullable=False)
-    name = Column(Text, nullable=False)
-    password = Column(Text,nullable=False)
 
-# GetItemByName
-@app.get('%s/item' % ROOT_PATH)
-def get_items(db: Session = Depends(session)):
-    result_set = db.query(User).all()    
+@app.get(f"{ROOT_PATH}/item")
+def get_items(db=Depends(get_db)):
+    result_set = db.query(User).all()
     response_body = jsonable_encoder({"list": result_set})
     return JSONResponse(status_code=status.HTTP_200_OK, content=response_body)
 
-# CreateItem
-@app.post('%s/item' % ROOT_PATH)
-def create_item(request: UserRequest, db: Session = Depends(session)):
-    item = User(
-                name = request.name,
-                price = request.password
-            )
+
+@app.post(f"{ROOT_PATH}/item")
+def create_item(request: UserRequest, db=Depends(get_db)):
+    item = User(name=request.name, password=request.password)
     db.add(item)
     db.commit()
-    response_body = jsonable_encoder({"item_id" : item.id})
+    response_body = jsonable_encoder({"item_id": item.id})
     return JSONResponse(status_code=status.HTTP_200_OK, content=response_body)
 
-# UpdateItem
-# passwordをupdateするのは良くないのでこれは参考程度
-@app.put('%s/item/{id}' % ROOT_PATH)
-def update_item(id: int, request: UserRequest, db: Session = Depends(session)):
+
+@app.put(f"{ROOT_PATH}/item/{id}")
+def update_item(id: int, request: UserRequest, db=Depends(get_db)):
     item = db.query(User).filter(User.id == id).first()
     if item is None:
-            return JSONResponse(status_code=status.HTTP_404_NOT_FOUND)
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND)
     item.name = request.name
-    item.price = request.password
+    item.password = request.password
     db.commit()
     return JSONResponse(status_code=status.HTTP_200_OK)
 
-# DeleteItem
-@app.delete('%s/item/{id}' % ROOT_PATH)
-def delete_item(id: int, db: Session = Depends(session)):
+
+@app.delete(f"{ROOT_PATH}/item/{id}")
+def delete_item(id: int, db=Depends(get_db)):
     db.query(User).filter(User.id == id).delete()
     db.commit()
     return JSONResponse(status_code=status.HTTP_200_OK)
 
-@app.get("/api/hoge")
+
+@app.get(f"{ROOT_PATH}/hoge")
 def index1():
     return {"message": "hogehoge"}
 
 
-@app.get("/api/fuga")
+@app.get(f"{ROOT_PATH}/fuga")
 def index2():
     return {"message": "fugafuga"}
 
 
-# Dockerfileからuvicorn(FastAPIサーバー）を起動する
 if __name__ == "__main__":
     uvicorn.run(
         app="main:app",
         host="0.0.0.0",
         reload=True,
         port=3000,
-        log_level="debug",)
+        log_level="debug",
+    )
