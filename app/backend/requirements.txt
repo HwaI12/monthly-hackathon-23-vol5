@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+starlette
+SQLAlchemy==1.4.31
+databases[postgresql]==0.4.1
+psycopg2==2.8.6
