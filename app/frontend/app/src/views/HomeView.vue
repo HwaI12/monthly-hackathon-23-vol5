@@ -27,6 +27,7 @@
         <p class="kuuhaku3">割</p>
       </div>
     </div>
+    <button :class="{ active: activeButton === 'decision' }" @click="decision">決定</button>
     <footer>
       <p>生活に必要な支出</p>
       <p>自己投資の支出</p>
@@ -38,11 +39,11 @@
 <script>
 export default {
   data() {
-    return {
-      activeButton: '',
-      outputText: ''
-    };
-  },
+      return {
+        activeButton: '',
+        outputText: '' // 追加: 出力するテキストを保持するデータ
+      };
+    },
   methods: {
     // 追加: ボタンのクリック時の処理
     handleClick() {
@@ -57,7 +58,14 @@ export default {
 
       // 入力欄をクリア
       inputAmount.value = '';
-    }
+    },
+    decision() {
+        this.activeButton = 'decision';
+        // ランダムにテキストを選択して出力
+        const options = ['生活費', '自己投資', '心'];
+        const randomIndex = Math.floor(Math.random() * options.length);
+        this.outputText = options[randomIndex];
+    },
   },
   mounted() {
     const clickBtn = document.getElementById('click-btn');
@@ -91,6 +99,21 @@ export default {
 .yoko {
   display: flex;
   align-items: center;
+}
+
+button {
+    font-family: 'Kosugi Maru', sans-serif;
+    color: #c52920;
+    background-color: #fff;
+    border: 3px solid #c52920;
+    font-size: 25px;
+    padding: 15px 25px;
+    font-weight: bold;
+    margin-bottom:45px;
+  }
+.active {
+    background-color: #f6d247;
+    color: #c52920;
 }
 
 .amount {
@@ -134,7 +157,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center; /* 中央寄せにする */
-  margin: 40px 20px -30px 20px;
+  margin: 40px 20px 10px 20px;
   /* margin-top: 20px; */
   /* background-color: #fff; */
   padding: 30px;
