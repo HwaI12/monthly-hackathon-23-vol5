@@ -2,7 +2,7 @@
   <div class="about">
     <div class="amount">
       <!-- 日付 -->
-      <p>7/1</p>
+      <p>6/30</p>
       <input class="input_amount" type="text" name="name">
       <p>円</p>
     </div>
@@ -268,9 +268,6 @@ export default {
   right: 5px;
   cursor: pointer;
 }
+
   </style>
-
-
-
-
 
