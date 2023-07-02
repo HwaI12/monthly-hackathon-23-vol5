@@ -268,4 +268,6 @@ export default {
   right: 5px;
   cursor: pointer;
 }
+
   </style>
+
