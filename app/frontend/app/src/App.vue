@@ -54,5 +54,10 @@ nav{
   background-color: #f6d247;
   padding: 20px;
   font-size: 20px;
+  color: #c52920;
+}
+nav .route a{
+  color: #c52920;
+  text-decoration: none;
 }
 </style>
